@@ -1,6 +1,6 @@
 # Initial Prompt for Claude
 
-Read the repository-root `CLAUDE.md` completely. Then read `docs/product-brief.md`, `docs/architecture.md`, `docs/data-dictionary.md`, and both demo CSV files.
+Read `CLAUDE.md` (in this `docs/` folder) completely. Then read `product-brief.md`, `architecture.md`, `data-dictionary.md`, and both demo CSV files.
 
 Do not write application code yet. First present:
 

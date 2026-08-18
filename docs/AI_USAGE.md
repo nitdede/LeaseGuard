@@ -5,8 +5,8 @@ explicit permission in `CLAUDE.md`. This document is an honest account of how it
 
 ## What AI did
 
-- **Planning:** Read `CLAUDE.md`, `docs/product-brief.md`, `docs/architecture.md`, and
-  `docs/data-dictionary.md`, then proposed the MVP scope, screens, domain model, schema, package
+- **Planning:** Read `CLAUDE.md`, `product-brief.md`, `architecture.md`, and
+  `data-dictionary.md`, then proposed the MVP scope, screens, domain model, schema, package
   structure, CSV import design, risk-scoring rules, and implementation phases. This plan was
   presented to Nitesh and approved before any application code was written.
 - **Implementation:** Wrote the Spring Boot application code (domain entities, services,
