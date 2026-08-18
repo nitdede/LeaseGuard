@@ -2,7 +2,12 @@
 
 ## Mission
 
-You are working with Nitesh on a Newmark Staff Software Engineer take-home assignment. AI use is explicitly permitted. Your job is not merely to generate code. Build a small, polished, production-shaped, fully explainable solution that Nitesh can defend during a technical walkthrough.
+LeaseGuard is a take-home project for a Staff Software Engineer position at Newmark, built in
+collaboration with Claude as an AI development partner (AI use is explicitly permitted for this
+assignment; see `AI_USAGE.md` for a full account of how it was used). The engineering bar is
+deliberately high: a small, polished, production-shaped, and fully explainable solution, where
+every design decision is intentional and defensible in a technical walkthrough — not code
+generated for its own sake.
 
 ## Selected problem
 
@@ -38,7 +43,7 @@ Verify major dependency versions and compatibility against official documentatio
 ## Simplicity constraints
 
 - Build one Spring Boot application and one PostgreSQL database.
-- Do not add a separate JavaScript build unless Nitesh explicitly approves it.
+- Do not add a separate JavaScript build unless user explicitly approves it.
 - Do not add Redis, a message broker, object storage, pgAdmin, service discovery, or cloud infrastructure to the MVP.
 - Prefer Spring Boot conventions and direct, readable code over custom frameworks.
 - Create abstractions only when they protect a real domain boundary, enable meaningful testing, or remove demonstrated duplication.
@@ -47,7 +52,7 @@ Verify major dependency versions and compatibility against official documentatio
 
 ## Required repository deliverables
 
-Claude must create and maintain these implementation files in addition to application source:
+Create and maintain these implementation files in addition to application source:
 
 - `pom.xml`
 - `Dockerfile`
@@ -63,7 +68,7 @@ Claude must create and maintain these implementation files in addition to applic
 - `README.md`
 - Required documents listed later in this file
 
-Do not generate Kubernetes manifests, Terraform, CI/CD pipelines, or cloud deployment files unless Nitesh asks for them.
+Do not generate Kubernetes manifests, Terraform, CI/CD pipelines, or cloud deployment files unless explicitly requested.
 
 ## Docker and local runtime requirements
 
@@ -172,7 +177,7 @@ Do not drop or truncate business tables during normal application startup.
 - Full lease accounting, billing, or CAM reconciliation
 - Production multi-tenancy
 
-Do not implement these non-goals without Nitesh's approval.
+Do not implement these non-goals without approval.
 
 ## Risk-scoring baseline
 
@@ -213,22 +218,9 @@ Return human-readable reason codes with every non-zero result. Keep rules in one
 - Missing optional values are allowed. Missing required values produce row errors.
 - Use `BigDecimal` for money, `LocalDate` for business dates, and `Instant` for audit timestamps.
 
-## Suggested domain model
-
-- `Property`: externalId, name, type, address, city, state, postalCode, totalRentableSqFt
-- `Tenant`: externalId, name, industry
-- `Lease`: externalId, property, tenant, leasedSqFt, startDate, endDate, renewalNoticeDate, annualBaseRent, status, assignedManager, version
-- `LeaseAction`: lease, actionType, note, actorName, occurredAt
-- `ImportBatch`: originalFilename, checksum, status, rowCount, successCount, errorCount, importedAt
-- `ImportError`: batch, rowNumber, fieldName, rejectedValue, message
-
-Use optimistic locking on Lease if concurrent edits are possible. Enforce external IDs with database unique constraints. Never expose JPA entities directly as web or API contracts.
-
 ## Architecture boundaries
 
-Organize packages by technical layer (updated 2026-08-18 at Nitesh's explicit request; the
-project originally organized by business capability, and the trade-offs of each approach were
-weighed before this one was chosen instead):
+Organize packages by technical layer:
 
 ```text
 com.leaseguard
@@ -254,7 +246,7 @@ Before coding:
 2. Inspect the repository state.
 3. Restate the MVP, assumptions, non-goals, and proposed package/domain design.
 4. Present the proposed screens, routes, schema, and implementation plan.
-5. **Stop and obtain Nitesh's approval.**
+5. **Stop and obtain approval.**
 
 After approval, implement small vertical increments:
 
@@ -273,7 +265,6 @@ After every increment:
 - Run relevant compilation and tests.
 - Report the actual commands and results.
 - List assumptions and remaining risks.
-- Add likely interviewer questions and concise first-person answers to `docs/interview-defense.md`.
 - Recommend a Git checkpoint. Never push without permission.
 
 ## Quality rules
@@ -409,7 +400,6 @@ Before final handoff, confirm each item explicitly:
 - [ ] No secrets, real customer data, or unnecessary services are present
 - [ ] README commands are verified
 - [ ] Code and documentation are in professional English
-- [ ] `docs/interview-defense.md` explains all major decisions and alternatives
 
 ## Required documentation
 
@@ -419,25 +409,8 @@ Maintain:
 - `docs/product-brief.md`
 - `docs/architecture.md`
 - `docs/data-dictionary.md`
-- `docs/assumptions-and-tradeoffs.md`
-- `docs/interview-defense.md`
 - `docs/demo-script.md`
 - `docs/future-roadmap.md`
 - `AI_USAGE.md`
 
 The README must include verified startup/test commands, the business story, architecture summary, sample-data workflow, assumptions, non-goals, and future work.
-
-## Final Staff-level review
-
-Before declaring completion, verify:
-
-- Can a reviewer understand the business problem and user within 60 seconds?
-- Does the dashboard create an actionable priority rather than merely display records?
-- Is every risk score explainable?
-- Are imports idempotent and validation errors actionable?
-- Are money, dates, transactions, and concurrency handled correctly?
-- Is the architecture proportional to the MVP?
-- Are scale thresholds and future evolution discussed without premature implementation?
-- Can Nitesh defend every major decision?
-
-Finish with the top 20 likely interview questions, five difficult cross-questions, and 30–60 second first-person answers.
