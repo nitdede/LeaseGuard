@@ -257,7 +257,7 @@ After approval, implement small vertical increments:
 5. Dashboard and filtering
 6. Lease detail and action tracking
 7. Integration tests and operational concerns
-8. README, screenshots/demo script, and interview-defense notes
+8. README, screenshots/demo script
 
 After every increment:
 
