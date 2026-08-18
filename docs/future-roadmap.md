@@ -36,27 +36,14 @@ Pull market rent benchmarks to flag leases priced meaningfully below market, in 
 current date/exposure-driven scoring. **Trigger:** access to a licensed CRE market-data feed and
 a validated hypothesis that this materially changes prioritization versus the current rules.
 
-## 6. Lease accounting and CAM reconciliation
-
-Track common-area-maintenance charges, percentage rent, escalations, and full GL-facing
-accounting - a different, much larger product surface than portfolio risk prioritization.
-**Trigger:** a decision to expand LeaseGuard from a risk/priority tool into a billing system,
-which is a distinct build, not an incremental one.
-
-## 7. Canonical integration contracts for multiple source systems
-
-If lease data starts arriving from more than one upstream system (not just a single CSV export),
-introduce a canonical import contract and reconciliation logic for conflicting records across
-sources. **Trigger:** a second real data source appears.
-
-## 8. Import error persistence and history
+## 6. Import error persistence and history
 
 Store `ImportError` rows so a user can review why a past import attempt was rejected without
 re-uploading the file. **Trigger:** real usage shows people revisit failed-import history often
 enough to justify the extra schema and query surface (the MVP's synchronous preview already
 covers the common case).
 
-## 9. Read-only REST/JSON API with OpenAPI docs
+## 7. Read-only REST/JSON API with OpenAPI docs
 
 A small `/api/**` surface (lease list, lease detail, dashboard summary) documented via
 springdoc, for a future mobile client, BI export, or third-party integration. **Trigger:** an

@@ -283,8 +283,8 @@ rent, unassigned-lease count, and 90/180/365-day expiring counts directly from
 
 See `docs/future-roadmap.md`, ordered by business value with explicit triggers for when each item
 would become worth building (authentication/multi-tenancy, precomputed risk scores at scale,
-staged import for large files, real notification delivery, market-data integration, lease
-accounting, multi-source reconciliation, import-error history, a read-only REST API).
+staged import for large files, real notification delivery, market-data integration,
+import-error history, a read-only REST API).
 
 ## AI usage disclosure
 
