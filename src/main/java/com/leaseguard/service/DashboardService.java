@@ -35,17 +35,15 @@ public class DashboardService {
         this.clock = clock;
     }
 
-    /**
-     * Builds everything the portfolio dashboard shows - the KPI numbers, the risk-level counts
-     * for the chart, and the top high-risk leases table - by loading every lease and scoring it
-     * fresh right now. Nothing here is cached or precomputed, so the result always reflects the
-     * database as it currently stands; there is no "stale dashboard" case to worry about.
-     *
-     * <p>See {@link DashboardView} for what each returned field means, including a couple of
-     * deliberate choices (e.g. rent-at-risk only counts HIGH/MEDIUM leases, and the
-     * expiring-within-N-days counts exclude already-expired leases) that are easy to assume
-     * differently if you're just reading the numbers.
-     */
+   // Builds everything the portfolio dashboard shows - the KPI numbers, the risk-level counts
+   // for the chart, and the top high-risk leases table - by loading every lease and scoring it
+   // fresh right now. Nothing here is cached or precomputed, so the result always reflects the
+   // database as it currently stands; there is no "stale dashboard" case to worry about.
+   //
+   // See {@link DashboardView} for what each returned field means, including a couple of
+   // deliberate choices (e.g. rent-at-risk only counts HIGH/MEDIUM leases, and the
+   // expiring-within-N-days counts exclude already-expired leases) that are easy to assume
+   // differently if you're just reading the numbers.
     @Transactional(readOnly = true)
     public DashboardView summarize() {
         LocalDate asOf = LocalDate.now(clock);
