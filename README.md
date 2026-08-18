@@ -279,5 +279,4 @@ accounting, multi-source reconciliation, import-error history, a read-only REST 
 
 ## AI usage disclosure
 
-This project was built with Claude as an active development collaborator, with explicit
-permission per `CLAUDE.md`.
+This project was built with Claude as an active development collaborator.
