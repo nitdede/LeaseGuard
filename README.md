@@ -280,6 +280,4 @@ accounting, multi-source reconciliation, import-error history, a read-only REST 
 ## AI usage disclosure
 
 This project was built with Claude as an active development collaborator, with explicit
-permission per `CLAUDE.md`. See `AI_USAGE.md` for a specific account of what was AI-generated,
-what was independently verified (dependency versions, test results, dashboard math), and what a
-human should still double-check before any production use.
+permission per `CLAUDE.md`.
