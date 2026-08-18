@@ -177,7 +177,14 @@ immutable migration (`V2__...`), never an edit to `V1`.
 
 **Expected result for the valid demo CSV:** 30 rows, all New, 0 errors, committing to 8
 properties, 30 tenants, and 30 leases. Reimporting the same file afterward shows 30 Unchanged, 0
-New, 0 Changed - no duplicates are ever created.
+New, 0 Changed - no duplicates are ever created. Reimporting with a row's
+`property_external_id`/`tenant_external_id` changed (but everything else the same) shows that row
+as Changed and reassigns the existing lease to the new property/tenant, rather than silently
+keeping the old association.
+
+Maximum file size is 5MB end to end - both the initial upload and the commit step (which
+re-submits the previewed content as a plain form field, not multipart) accept the same limit, so
+a file that previews successfully will not be rejected purely on size when committed.
 
 ## Trying the invalid CSV
 
@@ -230,19 +237,24 @@ scoring is computed on read, why filtering by risk level happens in memory) are 
 
 Unit tests cover every risk-scoring rule at its exact day boundary (expired, 0, 90, 91, 180, 181,
 365, 366), combined rules, the `RENEWED` short-circuit, the zero floor, CSV field validation, and
-lease idempotency comparison logic. Testcontainers integration tests (real PostgreSQL) cover
-Flyway migration application, unique/foreign-key/check constraints, atomic import, idempotent
-reimport, all-or-nothing rollback on an invalid batch, update-on-reimport, optimistic-lock
-conflicts, and dashboard aggregate/filter queries verified against independently computed
-expected values. MockMvc tests cover dashboard rendering, upload validation responses, filter
-parameters, Post/Redirect/Get on form submissions, and 404/conflict handling.
+lease idempotency comparison logic (including property/tenant reassignment on reimport, not just
+the scalar fields). Testcontainers integration tests (real PostgreSQL) cover Flyway migration
+application, unique/foreign-key/check constraints, atomic import, idempotent reimport,
+all-or-nothing rollback on an invalid batch, update-on-reimport (including property/tenant
+reassignment), optimistic-lock conflicts (both the pre-check for a stale page and a true
+simultaneous double-submit, which surface a consistent conflict message rather than a generic
+500), the expiring-within-N-days lease-list filter at its boundaries (already-expired leases
+excluded, the exact cutoff day included), and dashboard aggregate/filter queries verified against
+independently computed expected values. MockMvc tests cover dashboard rendering, upload
+validation responses, filter parameters, Post/Redirect/Get on form submissions, and 404/conflict
+handling.
 
 Verified locally before writing this section:
 
 ```text
 $ ./mvnw test
 ...
-Tests run: 75, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 81, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -279,4 +291,7 @@ accounting, multi-source reconciliation, import-error history, a read-only REST 
 
 ## AI usage disclosure
 
-This project was built with Claude as an active development collaborator.
+This project was built with Claude as an active development collaborator, with explicit
+permission per `CLAUDE.md`. See `AI_USAGE.md` for a specific account of what was AI-generated,
+what was independently verified (dependency versions, test results, dashboard math), and what a
+human should still double-check before any production use.
