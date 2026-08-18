@@ -102,10 +102,15 @@ public class Lease {
         this.lastContactDate = lastContactDate;
     }
 
-    /** Overwrites all mutable fields from a reimported CSV row with the same external ID. */
-    public void applyImportedValues(Integer leasedSqFt, LocalDate startDate, LocalDate endDate,
-                                     LocalDate renewalNoticeDate, BigDecimal annualBaseRent,
+    /**
+     * Overwrites all mutable fields, including the property/tenant association, from a
+     * reimported CSV row with the same external ID.
+     */
+    public void applyImportedValues(Property property, Tenant tenant, Integer leasedSqFt, LocalDate startDate,
+                                     LocalDate endDate, LocalDate renewalNoticeDate, BigDecimal annualBaseRent,
                                      LeaseStatus status, String assignedManager, LocalDate lastContactDate) {
+        this.property = property;
+        this.tenant = tenant;
         this.leasedSqFt = leasedSqFt;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -185,10 +190,13 @@ public class Lease {
     }
 
     /** True if any field that matters for import change-detection differs from the given CSV values. */
-    public boolean differsFrom(Integer leasedSqFt, LocalDate startDate, LocalDate endDate,
-                                LocalDate renewalNoticeDate, BigDecimal annualBaseRent,
-                                LeaseStatus status, String assignedManager, LocalDate lastContactDate) {
-        return !this.leasedSqFt.equals(leasedSqFt)
+    public boolean differsFrom(String propertyExternalId, String tenantExternalId, Integer leasedSqFt,
+                                LocalDate startDate, LocalDate endDate, LocalDate renewalNoticeDate,
+                                BigDecimal annualBaseRent, LeaseStatus status, String assignedManager,
+                                LocalDate lastContactDate) {
+        return !this.property.getExternalId().equals(propertyExternalId)
+                || !this.tenant.getExternalId().equals(tenantExternalId)
+                || !this.leasedSqFt.equals(leasedSqFt)
                 || !this.startDate.equals(startDate)
                 || !this.endDate.equals(endDate)
                 || !java.util.Objects.equals(this.renewalNoticeDate, renewalNoticeDate)

@@ -78,11 +78,15 @@ public class ImportService {
     }
 
     // Returns a preview of the given CSV content, which is validated but not yet persisted. This
+    // runs read-only so classifyIdempotency() can safely read a matched lease's lazy property/tenant
+    // association (open-in-view is disabled, so that association is not reachable once this method returns).
+    @Transactional(readOnly = true)
     public ImportPreviewResult previewUpload(String filename, String content) {
         return computePreview(content, filename).result();
     }
 
     // Returns a preview of the bundled demo CSV file, which is read from the classpath. This is used
+    @Transactional(readOnly = true)
     public ImportPreviewResult previewBundledDemoData() {
         try {
             String content = new FileSystemResource(bundledCsvPath).getContentAsString(StandardCharsets.UTF_8);
@@ -178,12 +182,18 @@ public class ImportService {
         return new PreviewComputation(result, validRows);
     }
 
-    //Check if the lease_external_id already exists in the database. If it does, compare the values of the existing lease with the values of the new row. If any of the values differ, return RowStatus.CHANGED. If all values are the same, return RowStatus.UNCHANGED. If the lease_external_id does not exist in the database, return RowStatus.NEW.
+    /**
+     * Check if the lease_external_id already exists in the database. 
+     * If it does, compare the values of the existing lease with the values of the new row. 
+     * If any of the values differ, return RowStatus.CHANGED. 
+     * If all values are the same, return RowStatus.UNCHANGED. 
+     * If the lease_external_id does not exist in the database, return RowStatus.NEW.
+     */
     private RowStatus classifyIdempotency(ParsedLeaseRow row) {
         return leaseRepository.findByExternalId(row.leaseExternalId())
-                .map(existing -> existing.differsFrom(row.leasedSqFt(), row.leaseStartDate(), row.leaseEndDate(),
-                        row.renewalNoticeDate(), row.annualBaseRent(), row.leaseStatus(), row.assignedManager(),
-                        row.lastContactDate())
+                .map(existing -> existing.differsFrom(row.propertyExternalId(), row.tenantExternalId(),
+                        row.leasedSqFt(), row.leaseStartDate(), row.leaseEndDate(), row.renewalNoticeDate(),
+                        row.annualBaseRent(), row.leaseStatus(), row.assignedManager(), row.lastContactDate())
                         ? RowStatus.CHANGED
                         : RowStatus.UNCHANGED)
                 .orElse(RowStatus.NEW);
@@ -195,9 +205,11 @@ public class ImportService {
         for (RawCsvRow row : rawRows) {
             String leaseExternalId = row.get(LeaseCsvColumns.LEASE_EXTERNAL_ID);
             if (leaseExternalId != null) {
+                // Group row numbers by leaseExternalId to detect duplicates within the same CSV file.
                 rowNumbersByLeaseId.computeIfAbsent(leaseExternalId, id -> new ArrayList<>()).add(row.rowNumber());
             }
         }
+        // Report duplicates within the same CSV file.
         for (Map.Entry<String, List<Integer>> entry : rowNumbersByLeaseId.entrySet()) {
             if (entry.getValue().size() > 1) {
                 for (Integer rowNumber : entry.getValue()) {
@@ -208,8 +220,11 @@ public class ImportService {
         }
     }
 
-    //This function checks for property conflicts by comparing the attributes of properties with the same external ID. If there are any discrepancies between the attributes of the properties, it adds an error to the extraIssues map for each conflicting row.
-    //Example : if the same property is described two different ways.
+    /**
+     * This function checks for property conflicts by comparing the attributes of properties with the same external ID. 
+     * If there are any discrepancies between the attributes of the properties, it adds an error to the extraIssues map for each conflicting row.
+     * Example : if the same property is described two different ways.
+     */
     private void detectPropertyConflicts(List<RowValidationResult> validations, Map<Integer, List<ImportIssue>> extraIssues) {
         Map<String, List<RowValidationResult>> byPropertyId = new HashMap<>();
         for (RowValidationResult v : validations) {
@@ -217,6 +232,8 @@ public class ImportService {
                 byPropertyId.computeIfAbsent(v.parsedRow().propertyExternalId(), id -> new ArrayList<>()).add(v);
             }
         }
+
+        // Check each property for conflicts with existing records or other rows in the CSV.
         for (Map.Entry<String, List<RowValidationResult>> entry : byPropertyId.entrySet()) {
             Optional<Property> existing = propertyRepository.findByExternalId(entry.getKey());
             ParsedLeaseRow reference = existing.isEmpty() ? entry.getValue().get(0).parsedRow() : null;
@@ -235,7 +252,11 @@ public class ImportService {
         }
     }
 
-     //checks: does the same tenant (tenant_external_id) get called by two different names anywhere — either within this file, or compared to what's already saved in the database? If yes, it flags the differing rows with a warning (not an error — reimport still proceeds).
+    /**
+     * Checks: does the same tenant (tenant_external_id) get called by two different names anywhere — either within this file, 
+     * or compared to what's already saved in the database? If yes, 
+     * it flags the differing rows with a warning (not an error — reimport still proceeds).
+     */
     private void detectTenantConflicts(List<RowValidationResult> validations, Map<Integer, List<ImportIssue>> extraIssues) {
         Map<String, List<RowValidationResult>> byTenantId = new HashMap<>();
         for (RowValidationResult v : validations) {
@@ -303,11 +324,12 @@ public class ImportService {
         Optional<Lease> existing = leaseRepository.findByExternalId(row.leaseExternalId());
         if (existing.isPresent()) {
             Lease lease = existing.get();
-            if (lease.differsFrom(row.leasedSqFt(), row.leaseStartDate(), row.leaseEndDate(), row.renewalNoticeDate(),
-                    row.annualBaseRent(), row.leaseStatus(), row.assignedManager(), row.lastContactDate())) {
-                lease.applyImportedValues(row.leasedSqFt(), row.leaseStartDate(), row.leaseEndDate(),
-                        row.renewalNoticeDate(), row.annualBaseRent(), row.leaseStatus(), row.assignedManager(),
-                        row.lastContactDate());
+            if (lease.differsFrom(row.propertyExternalId(), row.tenantExternalId(), row.leasedSqFt(),
+                    row.leaseStartDate(), row.leaseEndDate(), row.renewalNoticeDate(), row.annualBaseRent(),
+                    row.leaseStatus(), row.assignedManager(), row.lastContactDate())) {
+                lease.applyImportedValues(property, tenant, row.leasedSqFt(), row.leaseStartDate(),
+                        row.leaseEndDate(), row.renewalNoticeDate(), row.annualBaseRent(), row.leaseStatus(),
+                        row.assignedManager(), row.lastContactDate());
             }
         } else {
             leaseRepository.save(new Lease(row.leaseExternalId(), property, tenant, row.leasedSqFt(),

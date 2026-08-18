@@ -95,6 +95,47 @@ class ImportServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void reimportingWithAChangedPropertyExternalIdReassignsTheExistingLease() {
+        String original = csv(row(Map.of()));
+        ImportPreviewResult firstPreview = importService.previewUpload("f.csv", original);
+        importService.commit(firstPreview.filename(), firstPreview.content());
+        Long originalId = leaseRepository.findByExternalId("LSE-1001").orElseThrow().getId();
+
+        String reassigned = csv(row(Map.of("property_external_id", "PROP-2", "property_name", "Riverside",
+                "address_line1", "9 River Rd", "city", "Austin", "postal_code", "78701")));
+        ImportPreviewResult preview = importService.previewUpload("f.csv", reassigned);
+        assertThat(preview.changedCount()).isEqualTo(1); // property reassignment alone must count as a change
+
+        importService.commit(preview.filename(), preview.content());
+
+        assertThat(leaseRepository.count()).isEqualTo(1); // same lease updated, not duplicated
+        assertThat(propertyRepository.count()).isEqualTo(2); // PROP-1 kept as-is, PROP-2 newly created
+        Lease updated = leaseRepository.findByExternalId("LSE-1001").orElseThrow();
+        assertThat(updated.getId()).isEqualTo(originalId);
+        assertThat(updated.getProperty().getExternalId()).isEqualTo("PROP-2");
+    }
+
+    @Test
+    void reimportingWithAChangedTenantExternalIdReassignsTheExistingLease() {
+        String original = csv(row(Map.of()));
+        ImportPreviewResult firstPreview = importService.previewUpload("f.csv", original);
+        importService.commit(firstPreview.filename(), firstPreview.content());
+        Long originalId = leaseRepository.findByExternalId("LSE-1001").orElseThrow().getId();
+
+        String reassigned = csv(row(Map.of("tenant_external_id", "TEN-002", "tenant_name", "Globex Corp")));
+        ImportPreviewResult preview = importService.previewUpload("f.csv", reassigned);
+        assertThat(preview.changedCount()).isEqualTo(1); // tenant reassignment alone must count as a change
+
+        importService.commit(preview.filename(), preview.content());
+
+        assertThat(leaseRepository.count()).isEqualTo(1); // same lease updated, not duplicated
+        assertThat(tenantRepository.count()).isEqualTo(2); // TEN-001 kept as-is, TEN-002 newly created
+        Lease updated = leaseRepository.findByExternalId("LSE-1001").orElseThrow();
+        assertThat(updated.getId()).isEqualTo(originalId);
+        assertThat(updated.getTenant().getExternalId()).isEqualTo("TEN-002");
+    }
+
+    @Test
     void invalidBatchPersistsNothingAtAll() {
         String invalid = csv(row(Map.of("lease_end_date", "2020-01-01"))); // end before start
 

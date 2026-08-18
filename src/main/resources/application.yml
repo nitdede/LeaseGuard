@@ -32,6 +32,11 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+  tomcat:
+    # Matches spring.servlet.multipart.max-file-size above: /import/commit re-submits the
+    # previewed CSV as a plain form field (not multipart), which Tomcat's default 2MB
+    # form-post limit would otherwise reject for files the multipart upload step accepted.
+    max-http-form-post-size: 5MB
 
 management:
   endpoints:

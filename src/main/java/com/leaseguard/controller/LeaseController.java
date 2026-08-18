@@ -9,6 +9,7 @@ import com.leaseguard.model.LeaseStatus;
 import com.leaseguard.exception.LeaseVersionConflictException;
 import com.leaseguard.dto.RiskLevel;
 import com.leaseguard.repository.PropertyRepository;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -74,7 +75,10 @@ public class LeaseController {
         return "lease/detail";
     }
 
-    // Handles the assignment of a manager to a lease, checking for version conflicts and redirecting back to the lease detail page with appropriate success or error messages.
+    /**
+     * Handles the assignment of a manager to a lease, checking for version conflicts and redirecting back to the lease detail page with appropriate success or error messages.
+     * This will called when the user submits the manager assignment form for a specific lease.
+     */
     @PostMapping("/{id}/assign")
     public String assign(@PathVariable Long id, @RequestParam long version, @RequestParam(required = false) String manager,
                           @RequestParam(defaultValue = "Demo User") String actorName, RedirectAttributes redirectAttributes) {
@@ -83,11 +87,17 @@ public class LeaseController {
             redirectAttributes.addFlashAttribute("success", "Manager assignment updated.");
         } catch (LeaseVersionConflictException e) {
             redirectAttributes.addFlashAttribute("conflictError", e.getMessage());
+        } catch (ObjectOptimisticLockingFailureException e) {
+            redirectAttributes.addFlashAttribute("conflictError",
+                    "Someone else updated this lease at the same time. Please review the latest details and try again.");
         }
         return "redirect:/leases/" + id;
     }
 
-    // Handles the change of status for a lease, checking for version conflicts and redirecting back to the lease detail page with appropriate success or error messages.
+    /**
+     * Handles the change of status for a lease, checking for version conflicts and redirecting back to the lease detail page with appropriate success or error messages.
+     * This will be called when the user submits the status change form for a specific lease.
+     */
     @PostMapping("/{id}/status")
     public String changeStatus(@PathVariable Long id, @RequestParam long version, @RequestParam LeaseStatus status,
                                 @RequestParam(required = false) String note,
@@ -98,6 +108,9 @@ public class LeaseController {
             redirectAttributes.addFlashAttribute("success", "Lease status updated.");
         } catch (LeaseVersionConflictException e) {
             redirectAttributes.addFlashAttribute("conflictError", e.getMessage());
+        } catch (ObjectOptimisticLockingFailureException e) {
+            redirectAttributes.addFlashAttribute("conflictError",
+                    "Someone else updated this lease at the same time. Please review the latest details and try again.");
         }
         return "redirect:/leases/" + id;
     }

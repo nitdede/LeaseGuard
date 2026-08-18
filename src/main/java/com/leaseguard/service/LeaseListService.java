@@ -41,6 +41,7 @@ public class LeaseListService {
     @Transactional(readOnly = true)
     public PagedResult<LeaseRiskView> list(LeaseFilters filters, int page, int pageSize) {
         LocalDate asOf = LocalDate.now(clock);
+        
         // Load all leases matching the filters and compute their risk scores, along with the total annual base rent for each property. This is done in a single query to avoid N+1 issues.
         List<Lease> leases = leaseRepository.findAll(LeaseSpecifications.from(filters, asOf));
 
