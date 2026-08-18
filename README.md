@@ -49,7 +49,7 @@ flowchart TD
 
 See `docs/architecture.md` for the full decision record (why a monolith, why atomic import, why
 explainable rules instead of ML, why PostgreSQL, why an injected `Clock`, why optimistic
-locking) and `docs/assumptions-and-tradeoffs.md` for narrower implementation-level judgment calls.
+locking).
 
 ## Technology choices
 
@@ -72,7 +72,7 @@ locking) and `docs/assumptions-and-tradeoffs.md` for narrower implementation-lev
 .
 ├── data/demo/                       Valid and invalid synthetic CSVs
 ├── docs/                            Product brief, architecture, data dictionary, and this file's companions
-├── src/main/java/com/leaseguard/    Package-by-layer (see docs/assumptions-and-tradeoffs.md)
+├── src/main/java/com/leaseguard/    Package-by-layer
 │   ├── controller/                  Spring MVC @Controller classes (one per screen/feature)
 │   ├── service/                     Business logic - risk scoring, CSV import, dashboard, lease actions
 │   ├── repository/                  Spring Data JPA repositories and query-building helpers
@@ -125,8 +125,8 @@ above with no extra configuration needed.
 ```
 
 Runs unit tests, Testcontainers-backed PostgreSQL integration tests, and MockMvc web tests in one
-command (Surefire is configured to also pick up `*IT.java` classes - see
-`docs/assumptions-and-tradeoffs.md`). Requires Docker to be running for the integration tests.
+command (Surefire is configured to also pick up `*IT.java` classes, which it does not do by
+default). Requires Docker to be running for the integration tests.
 
 ### View logs
 
@@ -152,8 +152,7 @@ docker compose down -v
 - Application: http://localhost:8080/dashboard
 - Actuator health: http://localhost:8080/actuator/health
 
-(No Swagger/OpenAPI endpoint - see `docs/assumptions-and-tradeoffs.md` for why a REST API surface
-wasn't added to this server-rendered application.)
+(No Swagger/OpenAPI endpoint - this is a server-rendered application with no REST API surface.)
 
 ## Database creation and Flyway behavior
 
@@ -229,9 +228,7 @@ detection).
 
 This is a trusted local/internal demonstration with no authentication, authorization, or tenant
 isolation - see `docs/architecture.md`'s security-boundary section for what a production version
-would require. Key implementation judgment calls (property vs. tenant conflict policy, why risk
-scoring is computed on read, why filtering by risk level happens in memory) are recorded in
-`docs/assumptions-and-tradeoffs.md` with reasoning, not just stated.
+would require.
 
 ## Test strategy and verified commands
 

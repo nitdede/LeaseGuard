@@ -98,8 +98,8 @@ the next step, diagrammed below.
 
 What happens when the user clicks **Confirm Import** on the preview page — the step that
 actually writes to the database. `import/preview.html`'s commit form carries the exact CSV
-content back as a hidden field, so the server holds no state between preview and commit (see
-`docs/assumptions-and-tradeoffs.md` for why).
+content back as a hidden field, so the server holds no state between preview and commit; commit
+re-validates that content from scratch before writing anything.
 
 ## Additional files involved
 

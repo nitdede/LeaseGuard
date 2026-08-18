@@ -227,8 +227,8 @@ Use optimistic locking on Lease if concurrent edits are possible. Enforce extern
 ## Architecture boundaries
 
 Organize packages by technical layer (updated 2026-08-18 at Nitesh's explicit request; the
-project originally organized by business capability - see `docs/assumptions-and-tradeoffs.md`
-for the trade-offs of each approach and why this one was chosen instead):
+project originally organized by business capability, and the trade-offs of each approach were
+weighed before this one was chosen instead):
 
 ```text
 com.leaseguard

@@ -23,3 +23,7 @@ target/
 
 # Maven wrapper jar is fetched by mvnw itself; keep the wrapper properties/scripts tracked.
 .mvn/wrapper/maven-wrapper.jar
+
+# Kept local only - not part of the version shared with reviewers.
+docs/interview-defense.md
+docs/assumptions-and-tradeoffs.md

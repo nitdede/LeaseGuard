@@ -33,8 +33,8 @@ explicit permission in `CLAUDE.md`. This document is an honest account of how it
   from the CSV, rather than trusting the UI's own math.
 - **Simplification review (requested by Nitesh after the initial build):** Reviewed the codebase
   for unnecessary complexity, pushed back on a suggestion to replace CSV with a generic "text
-  file" (CSV already is a text format; the complexity is in validation, not the file type - see
-  `docs/assumptions-and-tradeoffs.md`), and instead found and applied three real simplifications:
+  file" (CSV already is a text format; the complexity is in validation, not the file type), and
+  instead found and applied three real simplifications:
   removed a server-side upload cache in favor of a stateless echo-the-content-back design,
   merged two near-duplicate error templates into one, and deleted two enum values
   (`NOTE_ADDED`, `FAILED`) that were declared but never actually produced anywhere in the
@@ -89,8 +89,8 @@ explicit permission in `CLAUDE.md`. This document is an honest account of how it
   across the synthetic demo data; they are not derived from real CRE industry benchmarks and
   should be validated against real portfolio data before any production use.
 - The property/tenant conflict-handling policy (property conflicts block the batch, tenant name
-  conflicts warn) is a judgment call documented in `docs/assumptions-and-tradeoffs.md` - reasonable,
-  but worth confirming against actual business requirements.
+  conflicts warn) is a deliberate judgment call, reasonable but worth confirming against actual
+  business requirements.
 - No security review beyond basic input validation and parameterized queries (via JPA) was
   performed; this is an internal demo application per its explicitly stated non-goals, not a
   production system.
