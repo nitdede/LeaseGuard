@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>LeaseGuard - Dashboard</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+
+<div class="container-fluid">
+    <div th:if="${importSuccess}" class="alert alert-success" role="alert">
+        Imported <span th:text="${importSuccess.successCount()}"></span> lease row(s) from
+        <span th:text="${importSuccess.filename()}"></span>.
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Portfolio Dashboard</h1>
+        <span class="text-muted">As of <span th:text="${dashboard.asOfDate()}"></span></span>
+    </div>
+
+    <div th:if="${dashboard.totalLeases() == 0}" class="alert alert-info">
+        No leases imported yet. Go to <a th:href="@{/import}">Import Data</a> to load the demo portfolio.
+    </div>
+
+    <div th:if="${dashboard.totalLeases() > 0}">
+        <div class="row row-cols-2 row-cols-md-4 g-3 mb-4">
+            <div class="col">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="text-muted small">Total Annual Base Rent</div>
+                        <div class="fs-4" th:text="${'$' + #numbers.formatDecimal(dashboard.totalAnnualBaseRent(), 0, 'COMMA', 0, 'POINT')}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card kpi-card border-danger">
+                    <div class="card-body">
+                        <div class="text-muted small">Annual Rent at Risk</div>
+                        <div class="fs-4 text-danger" th:text="${'$' + #numbers.formatDecimal(dashboard.annualRentAtRisk(), 0, 'COMMA', 0, 'POINT')}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="text-muted small">Overdue Renewal Notices</div>
+                        <div class="fs-4" th:text="${dashboard.overdueRenewalNotices()}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="text-muted small">Unassigned Leases</div>
+                        <div class="fs-4" th:text="${dashboard.unassignedLeases()}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="text-muted small">Expiring within 90 days</div>
+                        <div class="fs-4" th:text="${dashboard.expiringWithin90Days()}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="text-muted small">Expiring within 180 days</div>
+                        <div class="fs-4" th:text="${dashboard.expiringWithin180Days()}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="text-muted small">Expiring within 365 days</div>
+                        <div class="fs-4" th:text="${dashboard.expiringWithin365Days()}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="text-muted small">Total Leases</div>
+                        <div class="fs-4" th:text="${dashboard.totalLeases()}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h6">Leases by Risk Level</h2>
+                        <canvas id="riskChart" height="220"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="h6 mb-0">Highest-Risk Leases</h2>
+                            <a th:href="@{/leases(riskLevel='HIGH')}" class="small">View all high-risk leases</a>
+                        </div>
+                        <table class="table table-sm mt-2">
+                            <thead>
+                            <tr>
+                                <th>Lease</th>
+                                <th>Property / City</th>
+                                <th>Tenant</th>
+                                <th>Ends</th>
+                                <th>Score</th>
+                                <th>Manager</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="lease : ${dashboard.topHighRiskLeases()}">
+                                <td><a th:href="@{/leases/{id}(id=${lease.id()})}" th:text="${lease.externalId()}"></a></td>
+                                <td th:text="${lease.propertyName() + ' - ' + lease.city()}"></td>
+                                <td th:text="${lease.tenantName()}"></td>
+                                <td th:text="${lease.endDate()}"></td>
+                                <td><span class="badge risk-badge-HIGH" th:text="${lease.riskScore()}"></span></td>
+                                <td th:text="${lease.assignedManager() ?: 'Unassigned'}"></td>
+                            </tr>
+                            <tr th:if="${dashboard.topHighRiskLeases().isEmpty()}">
+                                <td colspan="6" class="text-muted">No high-risk leases right now.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/webjars/chart.js/dist/chart.umd.js}"></script>
+<script th:inline="javascript" th:if="${dashboard.totalLeases() > 0}">
+    const ctx = document.getElementById('riskChart');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['High', 'Medium', 'Low', 'None'],
+            datasets: [{
+                data: [ [[${dashboard.highRiskCount()}]], [[${dashboard.mediumRiskCount()}]], [[${dashboard.lowRiskCount()}]], [[${dashboard.noneRiskCount()}]] ],
+                backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#6c757d']
+            }]
+        }
+    });
+</script>
+</body>
+</html>

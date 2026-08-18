@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'LeaseGuard - Lease ' + ${lease.externalId()}"></title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+
+<div class="container">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${conflictError}" class="alert alert-danger" th:text="${conflictError}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Lease <span th:text="${lease.externalId()}"></span></h1>
+        <span class="badge fs-6" th:classappend="'risk-badge-' + ${lease.riskLevel()}"
+              th:text="${lease.riskLevel()} + ' risk - score ' + ${lease.riskScore()}"></span>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h6">Lease Facts</h2>
+                    <dl class="row mb-0 small">
+                        <dt class="col-5">Property</dt><dd class="col-7" th:text="${lease.propertyName()}"></dd>
+                        <dt class="col-5">City</dt><dd class="col-7" th:text="${lease.city()}"></dd>
+                        <dt class="col-5">Tenant</dt><dd class="col-7" th:text="${lease.tenantName()}"></dd>
+                        <dt class="col-5">Lease Ends</dt><dd class="col-7" th:text="${lease.endDate()}"></dd>
+                        <dt class="col-5">Renewal Notice Date</dt>
+                        <dd class="col-7" th:text="${lease.renewalNoticeDate() ?: 'None on file'}"></dd>
+                        <dt class="col-5">Annual Base Rent</dt>
+                        <dd class="col-7" th:text="${'$' + #numbers.formatDecimal(lease.annualBaseRent(), 0, 'COMMA', 0, 'POINT')}"></dd>
+                        <dt class="col-5">Status</dt><dd class="col-7" th:text="${lease.status()}"></dd>
+                        <dt class="col-5">Assigned Manager</dt>
+                        <dd class="col-7" th:text="${lease.assignedManager() ?: 'Unassigned'}"></dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h6">Why this score?</h2>
+                    <ul class="list-group list-group-flush" th:if="${!lease.riskReasons().isEmpty()}">
+                        <li class="list-group-item d-flex justify-content-between" th:each="reason : ${lease.riskReasons()}">
+                            <span th:text="${reason.message()}"></span>
+                            <span class="badge bg-light text-dark" th:text="(${reason.points() >= 0} ? '+' : '') + ${reason.points()}"></span>
+                        </li>
+                    </ul>
+                    <p class="text-muted mb-0" th:if="${lease.riskReasons().isEmpty()}">No risk contributors.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h6">Assign Manager</h2>
+                    <form th:action="@{/leases/{id}/assign(id=${lease.id()})}" method="post" class="row g-2">
+                        <input type="hidden" name="version" th:value="${lease.version()}"/>
+                        <div class="col-8">
+                            <input type="text" name="manager" class="form-control form-control-sm"
+                                   th:value="${lease.assignedManager()}" placeholder="Manager name"/>
+                        </div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-sm btn-primary w-100">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h6">Update Status</h2>
+                    <form th:action="@{/leases/{id}/status(id=${lease.id()})}" method="post">
+                        <input type="hidden" name="version" th:value="${lease.version()}"/>
+                        <div class="mb-2">
+                            <select name="status" class="form-select form-select-sm">
+                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                                        th:selected="${s == lease.status()}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" name="note" class="form-control form-control-sm" placeholder="Note (optional)"/>
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" name="actorName" class="form-control form-control-sm" value="Demo User" placeholder="Your name"/>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">Update Status</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h6">Action History</h2>
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>When</th><th>Type</th><th>Note</th><th>By</th></tr></thead>
+                        <tbody>
+                        <tr th:each="action : ${history}">
+                            <td th:text="${action.getOccurredAt()}"></td>
+                            <td th:text="${action.getActionType()}"></td>
+                            <td th:text="${action.getNote()}"></td>
+                            <td th:text="${action.getActorName()}"></td>
+                        </tr>
+                        <tr th:if="${history.isEmpty()}"><td colspan="4" class="text-muted">No actions recorded yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a th:href="@{/leases}" class="btn btn-outline-secondary">Back to Leases</a>
+</div>
+</body>
+</html>

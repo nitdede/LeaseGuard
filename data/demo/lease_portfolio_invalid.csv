@@ -1,0 +1,8 @@
+lease_external_id,property_external_id,property_name,property_type,address_line1,city,state,postal_code,total_rentable_sqft,tenant_external_id,tenant_name,tenant_industry,leased_sqft,lease_start_date,lease_end_date,renewal_notice_date,annual_base_rent,lease_status,assigned_manager,last_contact_date
+BAD-001,PROP-BAD-01,Invalid Date Plaza,OFFICE,1 Test Street,Dallas,TX,75201,100000,TEN-BAD-01,Date Error LLC,Technology,10000,2027-01-01,2026-01-01,2025-10-01,500000,NOT_STARTED,,
+BAD-002,PROP-BAD-02,Negative Rent Center,RETAIL,2 Test Street,Austin,TX,78701,80000,TEN-BAD-02,Rent Error Inc,Retail,12000,2024-01-01,2027-01-01,2026-07-01,-250000,MONITOR,Test Manager,2026-07-01
+BAD-003,PROP-BAD-03,Capacity Error Park,INDUSTRIAL,3 Test Street,Houston,TX,77001,50000,TEN-BAD-03,Too Large Logistics,Logistics,75000,2024-01-01,2028-01-01,2027-07-01,700000,CONTACT_TENANT,Test Manager,2026-07-01
+BAD-004,PROP-BAD-04,Unknown Type Building,HOTEL,4 Test Street,Phoenix,AZ,85001,90000,TEN-BAD-04,Enum Error Co,Hospitality,15000,2024-01-01,2028-01-01,2027-07-01,450000,ACTIVE,Test Manager,2026-07-01
+BAD-004,PROP-BAD-05,Duplicate Lease Building,OFFICE,5 Test Street,Chicago,IL,60601,120000,TEN-BAD-05,Duplicate ID Co,Professional Services,20000,2024-01-01,2028-01-01,2027-07-01,650000,MONITOR,Test Manager,2026-07-01
+BAD-006,PROP-BAD-06,,OFFICE,6 Test Street,Seattle,WA,98101,130000,TEN-BAD-06,Missing Property Name Co,Technology,18000,2024-01-01,2028-01-01,2027-07-01,720000,MONITOR,Test Manager,2026-07-01
+

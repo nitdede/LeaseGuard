@@ -1,0 +1,25 @@
+target/
+*.class
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+.claude/
+
+# OS
+.DS_Store
+
+# Env
+.env
+
+# Logs
+*.log
+
+# Maven wrapper jar is fetched by mvnw itself; keep the wrapper properties/scripts tracked.
+.mvn/wrapper/maven-wrapper.jar

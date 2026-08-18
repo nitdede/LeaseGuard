@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: LeaseGuard
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:leaseguard}
+    username: ${DB_USER:leaseguard}
+    password: ${DB_PASSWORD:leaseguard_local_dev}
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+  thymeleaf:
+    cache: true
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+leaseguard:
+  demo:
+    # Fixed "as of" date the risk engine treats as "today" for the deterministic demo dataset.
+    # A production profile would supply the real system clock instead of a fixed date.
+    as-of-date: ${DEMO_AS_OF_DATE:2026-08-17}
+    bundled-csv-path: data/demo/lease_portfolio.csv
+  risk:
+    high-rent-threshold-usd: ${RISK_HIGH_RENT_THRESHOLD_USD:1000000}
+    tenant-concentration-threshold-percent: ${RISK_TENANT_CONCENTRATION_THRESHOLD_PERCENT:25}
+
+logging:
+  level:
+    com.leaseguard: INFO

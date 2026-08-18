@@ -1,0 +1,6 @@
+.risk-badge-HIGH { background-color: #dc3545; }
+.risk-badge-MEDIUM { background-color: #fd7e14; }
+.risk-badge-LOW { background-color: #ffc107; color: #212529; }
+.risk-badge-NONE { background-color: #6c757d; }
+
+.kpi-card { min-height: 110px; }

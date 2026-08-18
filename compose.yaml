@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-leaseguard}
+      POSTGRES_USER: ${POSTGRES_USER:-leaseguard}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-leaseguard_local_dev}
+    ports:
+      # Exposed for local development only (psql/IDE access). Not required by the app service,
+      # which talks to postgres over the internal compose network.
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - leaseguard_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-leaseguard} -d ${POSTGRES_DB:-leaseguard}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-leaseguard}
+      DB_USER: ${POSTGRES_USER:-leaseguard}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-leaseguard_local_dev}
+      SERVER_PORT: 8080
+      DEMO_AS_OF_DATE: ${DEMO_AS_OF_DATE:-2026-08-17}
+      RISK_HIGH_RENT_THRESHOLD_USD: ${RISK_HIGH_RENT_THRESHOLD_USD:-1000000}
+      RISK_TENANT_CONCENTRATION_THRESHOLD_PERCENT: ${RISK_TENANT_CONCENTRATION_THRESHOLD_PERCENT:-25}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  leaseguard_pgdata:

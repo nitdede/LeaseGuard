@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>LeaseGuard - Leases</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+
+<div class="container-fluid">
+    <h1 class="h3 mb-3">Leases</h1>
+
+    <form th:action="@{/leases}" method="get" class="row g-2 mb-3 align-items-end">
+        <div class="col-auto">
+            <label class="form-label small mb-0">Property</label>
+            <select name="propertyId" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option th:each="p : ${properties}" th:value="${p.id}" th:text="${p.name}"
+                        th:selected="${filters.propertyId() == p.id}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-label small mb-0">City</label>
+            <select name="city" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option th:each="c : ${cities}" th:value="${c}" th:text="${c}" th:selected="${filters.city() == c}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-label small mb-0">Status</label>
+            <select name="status" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${filters.status() == s}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-label small mb-0">Risk Level</label>
+            <select name="riskLevel" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option th:each="r : ${riskLevels}" th:value="${r}" th:text="${r}" th:selected="${filters.riskLevel() == r}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-label small mb-0">Manager</label>
+            <select name="manager" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option th:each="m : ${managers}" th:value="${m}" th:text="${m}" th:selected="${filters.assignedManager() == m}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-label small mb-0">Expiring within (days)</label>
+            <select name="expiringWithinDays" class="form-select form-select-sm">
+                <option value="">Any</option>
+                <option value="90" th:selected="${filters.expiringWithinDays() == 90}">90</option>
+                <option value="180" th:selected="${filters.expiringWithinDays() == 180}">180</option>
+                <option value="365" th:selected="${filters.expiringWithinDays() == 365}">365</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-primary">Apply Filters</button>
+            <a th:href="@{/leases}" class="btn btn-sm btn-outline-secondary">Clear</a>
+        </div>
+    </form>
+
+    <p class="text-muted small" th:text="${result.totalItems()} + ' lease(s) found'"></p>
+
+    <table class="table table-sm table-hover">
+        <thead>
+        <tr>
+            <th>Lease</th>
+            <th>Property</th>
+            <th>City</th>
+            <th>Tenant</th>
+            <th>Ends</th>
+            <th>Annual Rent</th>
+            <th>Status</th>
+            <th>Risk</th>
+            <th>Manager</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="lease : ${result.items()}">
+            <td><a th:href="@{/leases/{id}(id=${lease.id()})}" th:text="${lease.externalId()}"></a></td>
+            <td th:text="${lease.propertyName()}"></td>
+            <td th:text="${lease.city()}"></td>
+            <td th:text="${lease.tenantName()}"></td>
+            <td th:text="${lease.endDate()}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(lease.annualBaseRent(), 0, 'COMMA', 0, 'POINT')}"></td>
+            <td th:text="${lease.status()}"></td>
+            <td>
+                <span class="badge" th:classappend="'risk-badge-' + ${lease.riskLevel()}"
+                      th:text="${lease.riskLevel()} + ' (' + ${lease.riskScore()} + ')'"></span>
+            </td>
+            <td th:text="${lease.assignedManager() ?: 'Unassigned'}"></td>
+        </tr>
+        <tr th:if="${result.items().isEmpty()}">
+            <td colspan="9" class="text-muted">No leases match these filters.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <nav th:if="${result.totalPages() > 1}">
+        <ul class="pagination pagination-sm">
+            <li class="page-item" th:classappend="${!result.hasPrevious()} ? 'disabled'">
+                <a class="page-link" th:href="@{/leases(propertyId=${filters.propertyId()}, city=${filters.city()}, status=${filters.status()}, riskLevel=${filters.riskLevel()}, manager=${filters.assignedManager()}, expiringWithinDays=${filters.expiringWithinDays()}, page=${result.page() - 1})}">Previous</a>
+            </li>
+            <li class="page-item disabled"><span class="page-link" th:text="'Page ' + (${result.page()} + 1) + ' of ' + ${result.totalPages()}"></span></li>
+            <li class="page-item" th:classappend="${!result.hasNext()} ? 'disabled'">
+                <a class="page-link" th:href="@{/leases(propertyId=${filters.propertyId()}, city=${filters.city()}, status=${filters.status()}, riskLevel=${filters.riskLevel()}, manager=${filters.assignedManager()}, expiringWithinDays=${filters.expiringWithinDays()}, page=${result.page() + 1})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</body>
+</html>

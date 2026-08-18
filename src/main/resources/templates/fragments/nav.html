@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="nav" class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/dashboard}">LeaseGuard</a>
+        <div class="navbar-nav">
+            <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+            <a class="nav-link" th:href="@{/leases}">Leases</a>
+            <a class="nav-link" th:href="@{/import}">Import Data</a>
+        </div>
+    </div>
+</nav>
+</body>
+</html>

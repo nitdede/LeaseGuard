@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'LeaseGuard - ' + ${title ?: 'Error'}"></title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container">
+    <h1 class="h3" th:text="${title ?: 'Something went wrong'}"></h1>
+    <p th:text="${message ?: 'An unexpected error occurred.'}"></p>
+    <p class="text-muted small">Correlation ID: <span th:text="${correlationId ?: #request.getAttribute('correlationId')}"></span></p>
+    <a th:href="@{/dashboard}" class="btn btn-primary">Back to Dashboard</a>
+</div>
+</body>
+</html>

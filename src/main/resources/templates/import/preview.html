@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>LeaseGuard - Import Preview</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+
+<div class="container">
+    <h1 class="h3 mb-3">Import Preview: <span th:text="${preview.filename()}"></span></h1>
+
+    <div th:if="${uploadError}" class="alert alert-warning" th:text="${uploadError}"></div>
+
+    <div th:if="${preview.hasFileLevelError()}" class="alert alert-danger" th:text="${preview.fileLevelError()}"></div>
+
+    <div th:unless="${preview.hasFileLevelError()}">
+        <div class="row row-cols-2 row-cols-md-5 g-2 mb-3">
+            <div class="col"><div class="card text-center"><div class="card-body py-2"><div class="fs-5" th:text="${preview.totalRows()}"></div><div class="small text-muted">Total Rows</div></div></div></div>
+            <div class="col"><div class="card text-center border-success"><div class="card-body py-2"><div class="fs-5 text-success" th:text="${preview.newCount()}"></div><div class="small text-muted">New</div></div></div></div>
+            <div class="col"><div class="card text-center border-primary"><div class="card-body py-2"><div class="fs-5 text-primary" th:text="${preview.changedCount()}"></div><div class="small text-muted">Changed</div></div></div></div>
+            <div class="col"><div class="card text-center"><div class="card-body py-2"><div class="fs-5" th:text="${preview.unchangedCount()}"></div><div class="small text-muted">Unchanged</div></div></div></div>
+            <div class="col"><div class="card text-center border-danger"><div class="card-body py-2"><div class="fs-5 text-danger" th:text="${preview.errorCount()}"></div><div class="small text-muted">Errors</div></div></div></div>
+        </div>
+
+        <div th:if="${preview.warningCount() > 0}" class="alert alert-warning">
+            <span th:text="${preview.warningCount()}"></span> row(s) have non-blocking warnings - see below.
+        </div>
+
+        <div th:if="${preview.errorCount() > 0}" class="alert alert-danger">
+            This batch has errors and cannot be imported. Fix the source file and upload it again;
+            no data will be saved from this attempt.
+        </div>
+
+        <form th:if="${preview.canCommit()}" th:action="@{/import/commit}" method="post" class="mb-3">
+            <input type="hidden" name="filename" th:value="${preview.filename()}"/>
+            <input type="hidden" name="content" th:value="${preview.content()}"/>
+            <button type="submit" class="btn btn-success">Confirm Import</button>
+            <a th:href="@{/import}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+
+        <table class="table table-sm table-striped">
+            <thead>
+            <tr>
+                <th>Row</th>
+                <th>Lease ID</th>
+                <th>Status</th>
+                <th>Details</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${preview.rows()}">
+                <td th:text="${row.rowNumber()}"></td>
+                <td th:text="${row.leaseExternalId()}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${row.status().name() == 'ERROR'} ? 'bg-danger' : (${row.status().name() == 'WARNING'} ? 'bg-warning text-dark' : (${row.status().name() == 'NEW'} ? 'bg-success' : (${row.status().name() == 'CHANGED'} ? 'bg-primary' : 'bg-secondary')))"
+                          th:text="${row.status()}"></span>
+                </td>
+                <td>
+                    <ul class="mb-0 ps-3 small" th:if="${!row.issues().isEmpty()}">
+                        <li th:each="issue : ${row.issues()}">
+                            <strong th:text="${issue.fieldName()}"></strong>: <span th:text="${issue.message()}"></span>
+                            <span th:if="${issue.rejectedValue() != null}" class="text-muted">(got "<span th:text="${issue.rejectedValue()}"></span>")</span>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a th:href="@{/import}" class="btn btn-outline-secondary">Back to Import</a>
+</div>
+</body>
+</html>

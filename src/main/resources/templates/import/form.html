@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>LeaseGuard - Import Data</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+
+<div class="container">
+    <h1 class="h3 mb-3">Import Lease Portfolio</h1>
+    <p class="text-muted">
+        Upload a lease portfolio CSV, or load the bundled synthetic demo dataset. Either path
+        validates the file and shows a preview - nothing is saved until you confirm the import.
+    </p>
+
+    <div th:if="${uploadError}" class="alert alert-danger" th:text="${uploadError}"></div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h6">Upload a CSV file</h2>
+                    <form th:action="@{/import/preview}" method="post" enctype="multipart/form-data">
+                        <input class="form-control mb-3" type="file" name="file" accept=".csv" required/>
+                        <button type="submit" class="btn btn-primary">Preview Import</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h6">Load bundled demo data</h2>
+                    <p class="small text-muted">
+                        Uses <code>data/demo/lease_portfolio.csv</code> through the same validation and
+                        import path as a manual upload.
+                    </p>
+                    <form th:action="@{/import/preview-demo}" method="post">
+                        <button type="submit" class="btn btn-outline-primary">Preview Bundled Demo Data</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
