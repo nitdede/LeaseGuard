@@ -301,7 +301,7 @@ public class ImportService {
     }
 
     
-    // Upserts(update + insert), if data already exists, update it; if it doesn't exist yet, create it.
+    // Find-or-create only: property conflicts are rejected as errors before commit, so an existing property always matches and needs no update.
     private Property upsertProperty(ParsedLeaseRow row) {
         return propertyRepository.findByExternalId(row.propertyExternalId())
                 .orElseGet(() -> propertyRepository.save(new Property(row.propertyExternalId(), row.propertyName(),
@@ -319,7 +319,9 @@ public class ImportService {
                 .orElseGet(() -> tenantRepository.save(new Tenant(row.tenantExternalId(), row.tenantName(), row.tenantIndustry())));
     }
 
-    // Upserts a Lease based on the given ParsedLeaseRow, Property, and Tenant. If a lease with the same external ID already exists, it is updated with the new values; otherwise, a new Lease is created and saved to the repository.
+    // Upserts a Lease based on the given ParsedLeaseRow, Property, and Tenant. 
+    // If a lease with the same external ID already exists, it is updated with the new values using JPA Dirty Checking
+    // otherwise, a new Lease is created and saved to the repository.
     private void upsertLease(ParsedLeaseRow row, Property property, Tenant tenant) {
         Optional<Lease> existing = leaseRepository.findByExternalId(row.leaseExternalId());
         if (existing.isPresent()) {
@@ -327,6 +329,7 @@ public class ImportService {
             if (lease.differsFrom(row.propertyExternalId(), row.tenantExternalId(), row.leasedSqFt(),
                     row.leaseStartDate(), row.leaseEndDate(), row.renewalNoticeDate(), row.annualBaseRent(),
                     row.leaseStatus(), row.assignedManager(), row.lastContactDate())) {
+
                 lease.applyImportedValues(property, tenant, row.leasedSqFt(), row.leaseStartDate(),
                         row.leaseEndDate(), row.renewalNoticeDate(), row.annualBaseRent(), row.leaseStatus(),
                         row.assignedManager(), row.lastContactDate());
