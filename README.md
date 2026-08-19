@@ -289,6 +289,4 @@ import-error history, a read-only REST API).
 ## AI usage disclosure
 
 This project was built with Claude as an active development collaborator, with explicit
-permission per `docs/CLAUDE.md`. See `docs/AI_USAGE.md` for a specific account of what was
-AI-generated, what was independently verified (dependency versions, test results, dashboard
-math), and what a human should still double-check before any production use.
+permission per `docs/CLAUDE.md`.

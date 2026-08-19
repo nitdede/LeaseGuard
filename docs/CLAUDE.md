@@ -4,10 +4,9 @@
 
 LeaseGuard is a take-home project for a Staff Software Engineer position at Newmark, built in
 collaboration with Claude as an AI development partner (AI use is explicitly permitted for this
-assignment; see `AI_USAGE.md` for a full account of how it was used). The engineering bar is
-deliberately high: a small, polished, production-shaped, and fully explainable solution, where
-every design decision is intentional and defensible in a technical walkthrough — not code
-generated for its own sake.
+assignment). The engineering bar is deliberately high: a small, polished, production-shaped, and
+fully explainable solution, where every design decision is intentional and defensible in a
+technical walkthrough — not code generated for its own sake.
 
 ## Selected problem
 
@@ -375,7 +374,7 @@ Create a reviewer-focused `README.md` and keep it accurate throughout developmen
 17. Test strategy and verified test commands
 18. Troubleshooting for occupied ports, unhealthy PostgreSQL, clean rebuild, and Testcontainers/Docker issues
 19. Future roadmap ordered by business value
-20. AI usage disclosure linking to `AI_USAGE.md`
+20. AI usage disclosure
 
 Run every documented command in an equivalent clean environment before marking the README complete. Never document commands that were not verified.
 
@@ -411,6 +410,5 @@ Maintain:
 - `docs/data-dictionary.md`
 - `docs/demo-script.md`
 - `docs/future-roadmap.md`
-- `AI_USAGE.md`
 
 The README must include verified startup/test commands, the business story, architecture summary, sample-data workflow, assumptions, non-goals, and future work.
