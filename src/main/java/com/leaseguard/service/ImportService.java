@@ -79,7 +79,6 @@ public class ImportService {
 
     // Returns a preview of the given CSV content, which is validated but not yet persisted. This
     // runs read-only so classifyIdempotency() can safely read a matched lease's lazy property/tenant
-    // association (open-in-view is disabled, so that association is not reachable once this method returns).
     @Transactional(readOnly = true)
     public ImportPreviewResult previewUpload(String filename, String content) {
         return computePreview(content, filename).result();
