@@ -53,24 +53,30 @@ public class RiskScoreService {
         List<RiskReasonCode> reasons = new ArrayList<>();
         int score = 0;
 
+        // Score the lease based on its expiration bucket relative to the as-of date.
         score += scoreExpirationBucket(lease.getEndDate(), asOf, reasons);
 
+        // Score the lease based on whether the renewal notice date has passed.
         if (lease.getRenewalNoticeDate() != null && lease.getRenewalNoticeDate().isBefore(asOf)) {
             score += add(RiskReasonCode.RENEWAL_NOTICE_PASSED, reasons);
         }
 
+        // Score the lease based on whether its annual base rent is considered high.
         if (lease.getAnnualBaseRent().compareTo(riskScoringProperties.highRentThresholdUsd()) >= 0) {
             score += add(RiskReasonCode.HIGH_ANNUAL_RENT, reasons);
         }
 
+        // Score the lease based on whether the tenant's rent is concentrated relative to the property's total annual base rent.
         if (isRentConcentrated(lease, propertyTotalAnnualBaseRent)) {
             score += add(RiskReasonCode.TENANT_RENT_CONCENTRATION, reasons);
         }
 
+        // Score the lease based on whether it has an assigned manager.
         if (lease.getAssignedManager() == null || lease.getAssignedManager().isBlank()) {
             score += add(RiskReasonCode.NO_MANAGER_ASSIGNED, reasons);
         }
 
+        // Score the lease based on whether it is currently in the renewal-in-progress status.
         if (lease.getStatus() == LeaseStatus.RENEWAL_IN_PROGRESS) {
             score += add(RiskReasonCode.RENEWAL_IN_PROGRESS, reasons);
         }
